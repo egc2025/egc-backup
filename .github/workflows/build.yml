@@ -26,6 +26,9 @@ jobs:
       - name: Generate index.html
         run: python generate_index.py
 
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
       - name: Upload artifact for GitHub Pages
         uses: actions/upload-pages-artifact@v3
         with:
