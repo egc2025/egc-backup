@@ -1,38 +1,52 @@
 import os
 
 BASE_DIR = "uploads"
+TEMPLATE_FILE = "base_index.html"
 OUTPUT_FILE = "index.html"
 
-def generate():
-    html = ['<html><head><meta charset="UTF-8"><title>EGC 2025</title></head><body>']
-    html.append('<h1>EGC 2025</h1>')
+def generate_content():
+    sections = []
+
     for root, dirs, files in os.walk(BASE_DIR):
         rel_root = os.path.relpath(root, BASE_DIR)
-        display_root = rel_root if rel_root != '.' else BASE_DIR
+        display_root = rel_root if rel_root != "." else BASE_DIR
 
-        html.append(f"<h2>{display_root}</h2>")
-        section_items = []
+        html = [f"<h4>{display_root}</h4>", "<ul>"]
 
         for file in sorted(files):
-            full_path = os.path.join(root, file)
-            rel_path = os.path.relpath(full_path)
+            rel_path = os.path.join("uploads", rel_root, file).replace("\\", "/")
 
             if file.endswith(".html"):
-                section_items.append(f'<li><a href="{rel_path}">📝 {file}</a></li>')
+                html.append(f'<li><a href="{rel_path}">📝 {file}</a></li>')
             elif file.endswith(".pdf"):
-                section_items.append(f'<li><a href="{rel_path}" target="_blank">📄 {file}</a></li>')
-            elif file.lower().endswith((".jpg", ".jpeg", ".png", ".gif", ".webp")):
-                html.append(f'<p><img src="{rel_path}" alt="{file}" style="max-width:200px;"></p>')
+                html.append(f'<li><a href="{rel_path}" target="_blank">📄 {file}</a></li>')
 
-        if section_items:
-            html.append("<ul>")
-            html.extend(section_items)
-            html.append("</ul>")
+        html.append("</ul>")
 
-    html.append("</body></html>")
+        for file in sorted(files):
+            rel_path = os.path.join("uploads", rel_root, file).replace("\\", "/")
+            if file.lower().endswith((".jpg", ".jpeg", ".png", ".gif", ".webp")):
+                html.append(f'<img src="{rel_path}" alt="{file}" class="img-fluid mb-3" style="max-width:200px;">')
+
+        sections.append("\n".join(html))
+
+    return "\n<hr>\n".join(sections)
+
+def generate_page():
+    if not os.path.exists(TEMPLATE_FILE):
+        print(f"Błąd: Nie znaleziono pliku szablonu '{TEMPLATE_FILE}'")
+        return
+
+    with open(TEMPLATE_FILE, "r", encoding="utf-8") as f:
+        template = f.read()
+
+    content = generate_content()
+    final_html = template.replace("{{ content }}", content)
 
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-        f.write("\n".join(html))
+        f.write(final_html)
+
+    print(f"Wygenerowano {OUTPUT_FILE}")
 
 if __name__ == "__main__":
-    generate()
+    generate_page()
