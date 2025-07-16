@@ -2,8 +2,7 @@ name: Build index.html
 
 on:
   push:
-    paths:
-      - 'uploads/**'
+    branches: [main]
   workflow_dispatch:
 
 jobs:
