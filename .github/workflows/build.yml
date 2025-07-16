@@ -1,4 +1,4 @@
-name: Build & Deploy to GitHub Pages
+name: Build & Deploy (one-step)
 
 on:
   push:
@@ -11,14 +11,16 @@ permissions:
   id-token: write
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
@@ -26,26 +28,20 @@ jobs:
       - name: Generate index.html
         run: python generate_index.py
 
+      - name: Prepare site directory
+        run: |
+          mkdir site
+          cp -r output/index.html site/
+          cp -r uploads site/
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
-      - name: Upload artifact for GitHub Pages
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: './output'
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-    steps:
-      - name: Show page URL
-        run: echo "Deployed to ${{ steps.deployment.outputs.page_url }}"
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
-      - name: Dump all context
-        run: |
-          echo "Outputs:"
-          echo "${{ toJson(steps.deployment.outputs) }}"
+        with:
+          artifact_name: ''
+
+      - name: Show URL
+        run: echo "Deployed to ${{ steps.deployment.outputs.page_url }}"
