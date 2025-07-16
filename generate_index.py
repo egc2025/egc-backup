@@ -2,7 +2,7 @@ import os
 
 BASE_DIR = "uploads"
 TEMPLATE_FILE = "base_index.html"
-OUTPUT_FILE = "index.html"
+OUTPUT_FILE = "output/index.html"
 
 def generate_content():
     sections = []
